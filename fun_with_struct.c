@@ -22,7 +22,7 @@ int main(){
 
 
 // ------------ Allocation -------------------------------------------
-  int  i, size_of_members, offset, lli_start=-1, count=0;
+  int  i, size_of_members, count=0;
   numbers a_num;
   numbers n_num[SIZE];
   numbers * ptr_num;
@@ -60,19 +60,9 @@ int main(){
   printf("Struct hex dump            : ");
   ptr = (unsigned char *) &a_num;
   for(i=0; i<sizeof(a_num); i++) printf("%02x ", ptr[i]);
-// For future purposes we need to count the starting position of the 
-// long long int member, the following small routine does exactly this
-// in a supposedly machine- and compiler-independent way, we moreover
-// display this result (WORKS ONLY ON LITTLE-ENDIAN SYSTEMS)
-  for(i=0; i<sizeof(a_num); i++){
-    if( count != 2 && ptr[i] == 0xfe ) count++;
-    if( count == 2 && ptr[i] == 0xfe ){
-      lli_start=i;
-      break;
-    }
-  }
   printf("\nMark long long int         : ");
-  for(i=0; i<sizeof(a_num); i++) printf("%s ", ( i>=lli_start && i<lli_start+sizeof(long long int))?"xx":"--");
+  for(i=0; i<sizeof(a_num); i++) printf("%s ", 
+    ( &ptr[i]>=(unsigned char *) &a_num.lli && &ptr[i]<(unsigned char *) &a_num.lli + sizeof(long long int) )?"xx":"--");
   printf("\n\n");
   
 
@@ -84,13 +74,15 @@ int main(){
 // or only a specific part (we choose to clear out the first 6 MSB of 
 // long long int member which amounts to set it equal to short member) 
 // by using the pointer and offsetting it to the desired position  
-  offset = lli_start+2;                                             // evaluate the offset including padding
-  ptr = (unsigned char *) &a_num+offset;                            // move the pointer to desired location
-  memset(ptr, 0, 6*sizeof(char));                                      // clear the int
+  ptr = ( (unsigned char *) &(a_num.lli) ) + 2;                    // brackets emphasizes order of operations
+  memset(ptr, 0, 6*sizeof(char));                                  
   printf("Struct content             : c = %d   lli = %llu   s = %d   i = %u\n",a_num.c, a_num.lli, a_num.s, a_num.i);
   printf("Struct hex dump            : ");
   ptr = (unsigned char *) &a_num;
   for(i=0; i<sizeof(a_num); i++) printf("%02x ", ptr[i]);
+  printf("\nMark long long int         : ");
+  for(i=0; i<sizeof(a_num); i++) printf("%s ", 
+    ( &ptr[i]>=(unsigned char *) &a_num.lli && &ptr[i]<(unsigned char *) &a_num.lli + sizeof(long long int) )?"xx":"--");
   printf("\n\n");
 
 
