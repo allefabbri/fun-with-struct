@@ -42,7 +42,7 @@ int IsLittleEndian(){
     unsigned char c[4];
   } bint = { 0x04030201 };
 
-  return bint.c[0] == 1;
+  return (bint.c[0] == 1) ? 1 : 0;
 }
 
 
