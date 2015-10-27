@@ -1,4 +1,4 @@
-// Copyright 2015, Alessandro Fabbri
+// Copyright 2015, Alessandro Fabbri and Stefano Sinigardi
 // for any question, please mail rommacc@yahoo.it
 
 /************************************************************************
@@ -33,6 +33,18 @@ typedef struct{
     unsigned short s;               // 2 bytes +
     unsigned int i;                 // 4 bytes = 15 bytes
 } numbers;                          // 
+
+
+// ------------ Function to test endianness --------------------------
+int IsLittleEndian(){
+  union {
+    unsigned int i;
+    unsigned char c[4];
+  } bint = { 0x04030201 };
+
+  return bint.c[0] == 1;
+}
+
 
 
 int main(){
@@ -84,7 +96,6 @@ int main(){
   printf("\n\n");
   
 
-
 // ------------ Use of memset ----------------------------------------
   printf(">>> MEMSET\n");
 // We can use memset to clear out the whole struct, using the 
@@ -92,7 +103,7 @@ int main(){
 // or only a specific part (we choose to clear out the first 6 MSB of 
 // long long int member which amounts to set it equal to short member) 
 // by using the pointer and offsetting it to the desired position  
-  ptr = ( (unsigned char *) &(a_num.lli) ) + 2;                    // brackets emphasizes order of operations
+  ptr = ( (unsigned char *) &(a_num.lli) ) + 2*IsLittleEndian();        // brackets emphasizes order of operations
   memset(ptr, 0, 6*sizeof(char));                                  
   printf("Struct content             : c = %d   lli = %llu   s = %d   i = %u\n",a_num.c, a_num.lli, a_num.s, a_num.i);
   printf("Struct hex dump            : ");
@@ -108,7 +119,7 @@ int main(){
   printf(">>> MEMCPY\n");
 // Here we show two way of using memcpy():
 // - copying : clean and compact way to duplicate struct content
-  memcpy(&n_num[0], &a_num, sizeof(a_num));
+  memcpy(&n_num[0], &a_num, sizeof(a_num));                       // equivalent to n_num[0]=a_num
   printf("Copied struct content      : c = %d   lli = %llu   s = %d   i = %u\n",n_num[0].c, n_num[0].lli, n_num[0].s, n_num[0].i);
   printf("Copied struct hex dump     : ");
   ptr = (unsigned char *) &n_num[0];
